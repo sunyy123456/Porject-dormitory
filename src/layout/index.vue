@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import { getToken } from '@/utils/auth'
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 
@@ -45,6 +46,14 @@ export default {
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+    }
+  },
+  mounted(){
+    this.getData();
+  },
+  methods:{
+    async getData(){
+      await this.$store.dispatch('user/getUserInfo'); 
     }
   }
 }

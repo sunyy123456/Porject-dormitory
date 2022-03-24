@@ -1,12 +1,13 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, reqGetUserInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import { resetRouter, normalRoutes, syyRoutes, constantRoutes, anyRoutes } from '@/router'
+import router from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: '',
-    avatar: ''
+    userInfo: {},
+    routes: constantRoutes,
   }
 }
 
@@ -19,23 +20,26 @@ const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
-  SET_NAME: (state, name) => {
-    state.name = name
+  GETUSERINOFO(state, userInfo){
+    state.userInfo = userInfo;
   },
-  SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar
+  GETROUTES(state, routes){
+    state.routes = routes;
+    router.addRoutes(routes)
   }
+  // SET_AVATAR: (state, avatar) => {
+  //   state.avatar = avatar
+  // }
 }
 
 const actions = {
-  // user login
+  // 登录
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        commit('SET_TOKEN', response.token)
+        setToken(response.token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -43,28 +47,48 @@ const actions = {
     })
   },
 
-  // get user info
-  getInfo({ commit, state }) {
+  getUserInfo({commit}){
+    const token = getToken();
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
-          return reject('Verification failed, please Login again.')
+      reqGetUserInfo(token).then(response => {
+        commit('GETUSERINOFO', response.data);
+        let newRoutes;
+        if(response.data.username === 'syy'){
+          newRoutes = constantRoutes.concat(syyRoutes, anyRoutes);
+        }else{
+          newRoutes = constantRoutes.concat(normalRoutes, anyRoutes);
         }
-
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
+        commit('GETROUTES', newRoutes);
+        resolve();
+      }).catch(error=>{
+        reject(error);
       })
     })
   },
 
-  // user logout
+
+  // get user info
+  // getInfo({ commit, state }) {
+  //   return new Promise((resolve, reject) => {
+  //     getInfo(state.token).then(response => {
+  //       const { data } = response
+
+  //       if (!data) {
+  //         return reject('Verification failed, please Login again.')
+  //       }
+
+  //       const { name, avatar } = data
+
+  //       commit('SET_NAME', name)
+  //       commit('SET_AVATAR', avatar)
+  //       resolve(data)
+  //     }).catch(error => {
+  //       reject(error)
+  //     })
+  //   })
+  // },
+
+  // 退出登录
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {

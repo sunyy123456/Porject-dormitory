@@ -27,7 +27,8 @@ module.exports = {
   publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'static',
-  lintOnSave: process.env.NODE_ENV === 'development',
+  // lintOnSave: process.env.NODE_ENV === 'development',
+  lintOnSave: false,
   productionSourceMap: false,
   devServer: {
     port: port,
@@ -35,6 +36,14 @@ module.exports = {
     overlay: {
       warnings: false,
       errors: true
+    },
+    proxy:{
+      '/api': {
+          target: 'http://127.0.0.1:8000',//代理地址，这里设置的地址会代替axios中设置的baseURL
+          // pathRewrite:{'^/api': ''}, // 为了防止将/api传给5000端口的服务器，需要将路径重写
+          ws: true,  // 用于支持websocket 
+          changeOrigin: true  // 用于控制请求头中的host值
+      },
     },
     before: require('./mock/mock-server.js')
   },

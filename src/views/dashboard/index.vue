@@ -1,19 +1,14 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">name: {{ name }}</div>
+    <div class="dashboard-text">Welcome to</div>
+    <div class="dashboard-text">宿舍管理系统</div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'Dashboard',
-  computed: {
-    ...mapGetters([
-      'name'
-    ])
-  }
 }
 </script>
 
@@ -21,9 +16,13 @@ export default {
 .dashboard {
   &-container {
     margin: 30px;
+    width: 100%;
+    height: 500px;
+    background: url(~@/assets/bg3.jpeg);
   }
   &-text {
     font-size: 30px;
+    color: #fff;
     line-height: 46px;
   }
 }
